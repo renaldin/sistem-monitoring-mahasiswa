@@ -1,0 +1,13 @@
+.sidebar-height{
+    height: fit-content!important;
+}
+#table-rekap-laporan thead,
+#table-rekap-laporan tbody,
+#table-rekap-laporan tfoot,
+#table-rekap-laporan tr,
+#table-rekap-laporan td,
+#table-rekap-laporan th {
+    vertical-align: inherit;
+    border-color: inherit;
+    border-width: 1px;
+}
