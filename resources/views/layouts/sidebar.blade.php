@@ -36,7 +36,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ Request::path() == 'jadwal' ? 'active' : '' }}" href="/jadwal-new">
+                <a class="nav-link {{ Request::path() == 'jadwal-new' ? 'active' : '' }}" href="/jadwal-new">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="fa fa-clock text-dark text-sm opacity-10"></i>
                 </div>
@@ -44,7 +44,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ Request::path() == 'jadwal' ? 'active' : '' }}" href="/absensi">
+                <a class="nav-link {{ Request::path() == 'absensi' ? 'active' : '' }}" href="/absensi">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="fa fa-clock text-dark text-sm opacity-10"></i>
                 </div>
@@ -68,7 +68,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ Request::path() == 'mahasiswa-kelas' ? 'active' : '' }}" href="/profile">
+                <a class="nav-link {{ Request::path() == 'profile' ? 'active' : '' }}" href="/profile">
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                     <i class="fa fa-user text-dark text-sm opacity-10"></i>
                     </div>
@@ -77,7 +77,7 @@
             </li>
         @elseif (Auth::user()->role->role_name == 'mahasiswa')
         <li class="nav-item">
-            <a class="nav-link {{ Request::path() == 'mahasiswa-kelas' ? 'active' : '' }}" href="/profile">
+            <a class="nav-link {{ Request::path() == 'profile' ? 'active' : '' }}" href="/profile">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="fa fa-user text-dark text-sm opacity-10"></i>
                 </div>
@@ -158,7 +158,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {{ Request::path() == 'jadwal' ? 'active' : '' }}" href="/jadwal-new">
+            <a class="nav-link {{ Request::path() == 'jadwal-new' ? 'active' : '' }}" href="/jadwal-new">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="fa fa-clock text-dark text-sm opacity-10"></i>
                 </div>
@@ -214,7 +214,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {{ Request::path() == 'mahasiswa-kelas' ? 'active' : '' }}" href="/profile">
+            <a class="nav-link {{ Request::path() == 'mahasiswa-kelas'||Request::path() == 'profile' ? 'active' : '' }}" href="/profile">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="fa fa-user text-dark text-sm opacity-10"></i>
                 </div>
@@ -263,7 +263,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {{ Request::path() == 'mahasiswa-kelas' ? 'active' : '' }}" href="/profile">
+            <a class="nav-link {{ Request::path() == 'profile' ? 'active' : '' }}" href="/profile">
                 <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                 <i class="fa fa-user text-dark text-sm opacity-10"></i>
                 </div>

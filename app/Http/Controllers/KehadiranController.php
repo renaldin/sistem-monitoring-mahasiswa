@@ -68,22 +68,41 @@ class KehadiranController extends Controller
     {
         try {
             //code...
+            $kehadiran = Kehadiran::where('id_jadwal', $id_jadwal)
+                ->select('pertemuan', DB::raw('count(*) as total'), 'tanggal', 'deskripsi')
+                ->groupBy('pertemuan', 'tanggal', 'deskripsi')
+                ->get();
+            foreach ($kehadiran as $item) {
+                if ($request->tanggal === $item->tanggal) {
+                    Session::flash('swal', [
+                        'title' => 'Gagal',
+                        'text' => 'Tanggal sudah ada',
+                        'icon' => 'error',
+                        'timer' => 4500,
+                        'showConfirmButton' => false,
+                    ]);
+                    return redirect()->back();
+                }
+            }
+
             $this->validate($request, [
-                'pertemuan' => ['required','min:1','max:16'],
+                'pertemuan' => ['required', 'min:1', 'max:16'],
                 'tanggal' => ['required'],
                 'deskripsi' => ['required'],
                 // 'tanggal' => ['required'],
             ]);
+
+
             $today = Carbon::today();
             $tanggal = $today->toDateString();
-    
+
             $data = $request->except('_token');
             $kehadiran_exists = Kehadiran::where('id_jadwal', $id_jadwal)
                 ->where('pertemuan', $data['pertemuan'])
-                ->select('id_jadwal','pertemuan', 'tanggal','deskripsi')
-                ->groupBy('id_jadwal','pertemuan','tanggal','deskripsi')
+                ->select('id_jadwal', 'pertemuan', 'tanggal', 'deskripsi')
+                ->groupBy('id_jadwal', 'pertemuan', 'tanggal', 'deskripsi')
                 ->exists();
-    
+
             if ($kehadiran_exists) {
                 Session::flash('swal', [
                     'title' => 'Add Data',
@@ -94,19 +113,19 @@ class KehadiranController extends Controller
                 ]);
                 return redirect()->back();
             }
-    
+
             $jadwal = Jadwal::findorFail($id_jadwal);
             $mata_kuliah_enroll = MataKuliahEnroll::findorFail($jadwal->id_mata_kuliah_enroll);
-    
+
             $mahasiswa = MahasiswaMataKuliahEnroll::with('mataKuliahEnroll')
-            ->where('id_mata_kuliah_enroll', $mata_kuliah_enroll->id)
-            ->whereHas('mataKuliahEnroll', function($query) use ($mata_kuliah_enroll) {
-                $query->where('id_kelas', $mata_kuliah_enroll->id_kelas);
-            })
-            ->get();
-    
-    
-    
+                ->where('id_mata_kuliah_enroll', $mata_kuliah_enroll->id)
+                ->whereHas('mataKuliahEnroll', function ($query) use ($mata_kuliah_enroll) {
+                    $query->where('id_kelas', $mata_kuliah_enroll->id_kelas);
+                })
+                ->get();
+
+
+
             foreach ($mahasiswa as $key => $value) {
                 $data = array(
                     'id_jadwal' => $jadwal->id,
@@ -116,7 +135,7 @@ class KehadiranController extends Controller
                     'pertemuan' => $data['pertemuan'],
                     'deskripsi' => $data['deskripsi'],
                 );
-    
+
                 Kehadiran::create($data);
             }
 
@@ -127,7 +146,7 @@ class KehadiranController extends Controller
                 'timer' => 1500,
                 'showConfirmButton' => false,
             ]);
-    
+
             return redirect()->route('jadwal.show', $id_jadwal);
         } catch (\Throwable $th) {
             //throw $th;
@@ -158,14 +177,14 @@ class KehadiranController extends Controller
         // ->first();
 
         $kehadiran_detail = Kehadiran::where('id_jadwal', $jadwal->id)
-        ->where('pertemuan', $pertemuan)
-        ->select('id_jadwal','pertemuan', 'tanggal','deskripsi')
-        ->groupBy('id_jadwal','pertemuan','tanggal','deskripsi')
-        ->first();
+            ->where('pertemuan', $pertemuan)
+            ->select('id_jadwal', 'pertemuan', 'tanggal', 'deskripsi')
+            ->groupBy('id_jadwal', 'pertemuan', 'tanggal', 'deskripsi')
+            ->first();
 
         $kehadiran_mahasiswa = Kehadiran::where('id_jadwal', $id_jadwal)
-        ->where('pertemuan', $pertemuan)
-        ->get();
+            ->where('pertemuan', $pertemuan)
+            ->get();
 
 
         $data = array(
@@ -189,10 +208,10 @@ class KehadiranController extends Controller
         $jadwal = Jadwal::findorFail($id_jadwal);
 
         $pertemuan_kelas = Kehadiran::where('id_jadwal', $jadwal->id)
-        ->select('pertemuan', DB::raw('count(*) as total'), 'tanggal', 'deskripsi')
-        ->groupBy('pertemuan','tanggal','deskripsi')
-        ->where('pertemuan', $pertemuan)
-        ->first();
+            ->select('pertemuan', DB::raw('count(*) as total'), 'tanggal', 'deskripsi')
+            ->groupBy('pertemuan', 'tanggal', 'deskripsi')
+            ->where('pertemuan', $pertemuan)
+            ->first();
 
 
         $pertemuans = [];
@@ -227,22 +246,22 @@ class KehadiranController extends Controller
         try {
             //code...
             $this->validate($request, [
-                'pertemuan' => ['required','min:1','max:16'],
+                'pertemuan' => ['required', 'min:1', 'max:16'],
                 'tanggal' => ['required'],
                 'deskripsi' => ['required'],
                 // 'tanggal' => ['required'],
             ]);
             $today = Carbon::today();
             $tanggal = $today->toDateString();
-    
+
             $data = $request->except('_token');
             $kehadiran_exists = Kehadiran::where('id_jadwal', $id_jadwal)
                 ->where('pertemuan', $data['pertemuan'])
                 ->whereNotIn('pertemuan', [$pertemuan])
-                ->select('id_jadwal','pertemuan', 'tanggal','deskripsi')
-                ->groupBy('id_jadwal','pertemuan','tanggal','deskripsi')
+                ->select('id_jadwal', 'pertemuan', 'tanggal', 'deskripsi')
+                ->groupBy('id_jadwal', 'pertemuan', 'tanggal', 'deskripsi')
                 ->exists();
-    
+
             if ($kehadiran_exists) {
                 Session::flash('swal', [
                     'title' => 'Update Data',
@@ -251,12 +270,12 @@ class KehadiranController extends Controller
                     'timer' => 1500,
                     'showConfirmButton' => false,
                 ]);
-                
+
                 return redirect()->back();
             } else {
                 Kehadiran::where('id_jadwal', $id_jadwal)
-                ->where('pertemuan', $pertemuan)
-                ->update(['deskripsi' => $data['deskripsi'], 'pertemuan' => $data['pertemuan'], 'tanggal' => $data['tanggal']]);
+                    ->where('pertemuan', $pertemuan)
+                    ->update(['deskripsi' => $data['deskripsi'], 'pertemuan' => $data['pertemuan'], 'tanggal' => $data['tanggal']]);
             }
             Session::flash('swal', [
                 'title' => 'Update Data',
@@ -288,7 +307,7 @@ class KehadiranController extends Controller
             $jadwal = Jadwal::findorFail($id_jadwal);
             $jam_mulai = Carbon::createFromFormat('H:i:s', $jadwal->jam_mulai);
             // $current_time = Carbon::now();
-    
+
             $data = $request->except('_token');
             $array_combine = array_map(function ($value1, $value2, $value3) {
                 return [
@@ -296,8 +315,8 @@ class KehadiranController extends Controller
                     'status' => $value2,
                     'terlambat' => $value3,
                 ];
-            }, $data['id_kehadiran'] , $data['status'], $data['terlambat']);
-    
+            }, $data['id_kehadiran'], $data['status'], $data['terlambat']);
+
             foreach ($array_combine as $key => $value) {
                 $kehadiran = Kehadiran::findorFail($value['id_kehadiran']);
                 // $jam_terlambat = $jam_mulai->diffInMinutes($value['jam_masuk_mahasiswa']);
@@ -307,7 +326,7 @@ class KehadiranController extends Controller
                 $kehadiran->terlambat = $value['terlambat'];
                 $kehadiran->status = $value['status'];
                 // $kehadiran->jam_masuk_mahasiswa = $value['jam_masuk_mahasiswa'];
-    
+
                 $kehadiran->update();
             }
             Session::flash('swal', [
@@ -342,7 +361,7 @@ class KehadiranController extends Controller
         //
     }
 
-    public function addKeterlambatan(Request $request,$id_jadwal)
+    public function addKeterlambatan(Request $request, $id_jadwal)
     {
         $data = $request->except('_token');
         $current_time = Carbon::now();
@@ -355,9 +374,9 @@ class KehadiranController extends Controller
         // ->get();
 
         $kehadiran = Kehadiran::where('id_jadwal', $id_jadwal)
-        ->where('pertemuan', $data['pertemuan'])
-        ->where('id_mahasiswa', $data['mahasiswa'])
-        ->first();
+            ->where('pertemuan', $data['pertemuan'])
+            ->where('id_mahasiswa', $data['mahasiswa'])
+            ->first();
 
         $kehadiran->terlambat = $jam_terlambat;
         $kehadiran->update();
@@ -365,14 +384,14 @@ class KehadiranController extends Controller
         return $kehadiran;
     }
 
-    public function updateKehadiran(Request $request ,$id_jadwal)
+    public function updateKehadiran(Request $request, $id_jadwal)
     {
         $data = $request->except('_token');
         $jadwal = Jadwal::findorFail($id_jadwal);
 
         $kehadiran = Kehadiran::where('id', $data['id_kehadiran'])
-        ->where('id_jadwal', $jadwal->id)
-        ->first();
+            ->where('id_jadwal', $jadwal->id)
+            ->first();
 
         $status = $data['isChecked'];
 

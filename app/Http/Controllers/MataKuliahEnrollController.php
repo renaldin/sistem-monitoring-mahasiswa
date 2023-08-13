@@ -22,15 +22,15 @@ class MataKuliahEnrollController extends Controller
         //
     }
 
-   /**
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function create($id)
     {
-        $kelas = Kelas::all();
-        $dosen = User::where([['id_role','=',3],['id_prodi','=',Auth::user()->id_prodi]])->get();
+        $kelas = Kelas::with('tahunAjaran')->get();
+        $dosen = User::where([['id_role', '=', 3], ['id_prodi', '=', Auth::user()->id_prodi]])->get();
 
         $data = array(
             'kelas' => $kelas,
@@ -62,9 +62,9 @@ class MataKuliahEnrollController extends Controller
 
         // check if exists
         $matkul_enroll = MataKuliahEnroll::where('id_mata_kuliah', $id)
-        ->where('id_kelas', $request->id_kelas)
-        ->where('id_dosen', $data['id_dosen'])
-        ->exists();
+            ->where('id_kelas', $request->id_kelas)
+            ->where('id_dosen', $data['id_dosen'])
+            ->exists();
 
         if ($matkul_enroll) {
             return redirect()->back()->with('error', 'Dosen yang dipilih sudah ada');
@@ -74,10 +74,11 @@ class MataKuliahEnrollController extends Controller
             'id_mata_kuliah' => $id,
             'id_kelas' => $request->id_kelas,
             'id_dosen' => $data['id_dosen'],
+            'status_dosen' => $request->status_dosen,
         );
 
         $list_mahasiswa = KelasEnroll::where('id_kelas', $request->id_kelas)
-        ->get();
+            ->get();
 
 
         $mata_kuliah_enroll = MataKuliahEnroll::create($data);
@@ -92,8 +93,6 @@ class MataKuliahEnrollController extends Controller
 
 
         return redirect()->route('mata-kuliah.show', $id);
-
-
     }
 
     /**
@@ -116,7 +115,7 @@ class MataKuliahEnrollController extends Controller
     public function edit($id, $id_enroll)
     {
         $kelas = Kelas::all();
-        $dosen = User::where([['id_role','=',3],['id_prodi','=',Auth::user()->id_prodi]])->get();
+        $dosen = User::where([['id_role', '=', 3], ['id_prodi', '=', Auth::user()->id_prodi]])->get();
         $mata_kuliah_enroll = MataKuliahEnroll::findorFail($id_enroll);
 
         $data = array(
@@ -141,6 +140,7 @@ class MataKuliahEnrollController extends Controller
         $this->validate($request, [
             'id_kelas' => ['required'],
             'id_dosen' => ['required'],
+            'status_dosen' => ['required'],
         ]);
 
         if (auth()->user()->role->role_name == 'admin jurusan') {
@@ -152,14 +152,15 @@ class MataKuliahEnrollController extends Controller
         $data = array(
             'id_kelas' => $request->id_kelas,
             'id_dosen' => $request->id_dosen,
+            'status_dosen' => $request->status_dosen,
         );
 
         // check if exists
         $matkul_enroll = MataKuliahEnroll::where('id_mata_kuliah', $id)
-        ->where('id_kelas', $request->id_kelas)
-        ->whereNotIn('id', [$id_enroll])
-        ->where('id_dosen', $data['id_dosen'])
-        ->exists();
+            ->where('id_kelas', $request->id_kelas)
+            ->whereNotIn('id', [$id_enroll])
+            ->where('id_dosen', $data['id_dosen'])
+            ->exists();
 
 
         if ($matkul_enroll) {
@@ -173,7 +174,7 @@ class MataKuliahEnrollController extends Controller
         $mata_kuliah_enroll->update($data);
 
         $list_mahasiswa = KelasEnroll::where('id_kelas', $request->id_kelas)
-        ->get();
+            ->get();
 
 
         // foreach ($list_mahasiswa as $key => $value) {

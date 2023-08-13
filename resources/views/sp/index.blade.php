@@ -26,17 +26,19 @@
                   <tbody>
                     @foreach ($rekomendasi as $item)
                       @if($item['sum_terlambat'] >= 120)
-                        <tr>
-                          <td>{{$item['mahasiswa']}}</td>
-                          <td>{{$item['sum_terlambat']}}</td>
-                          <td>{{$item['rekomen_sp']}}</td>
-                          <td>
-                            <a href="{{ route('sp.check-terlambat', $item['mahasiswa_id']) }}" class="btn btn-primary btn-sm">Cek Telat</a>
-                            @if($item['is_done'] == 0)
-                            <a href="{{ route('sp.kirim-peringatan', $item['mahasiswa_id']) }}" class="btn btn-info btn-sm">Kirim Peringatan</a>
-                            @endif
-                          </td>
-                        </tr>
+                        @if($item['is_done'] == 0)
+                          <tr>
+                            <td>{{$item['mahasiswa']}}</td>
+                            <td>{{$item['sum_terlambat']}}</td>
+                            <td>{{$item['rekomen_sp']}}</td>
+                            <td>
+                              <a href="{{ route('sp.check-terlambat', $item['mahasiswa_id']) }}" class="btn btn-primary btn-sm">Cek Telat</a>
+                              @if($item['is_done'] == 0)
+                              <a href="{{ route('sp.kirim-peringatan', $item['mahasiswa_id']) }}" class="btn btn-info btn-sm">Kirim Peringatan</a>
+                              @endif
+                            </td>
+                          </tr>
+                        @endif
                       @endif
                     @endforeach
                   </tbody>

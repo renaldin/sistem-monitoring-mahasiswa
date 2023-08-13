@@ -12,12 +12,12 @@ class MataKuliahEnroll extends Model
     protected $table = 'mata_kuliah_enrolls';
 
     protected $fillable = [
-        'id_kelas','id_mata_kuliah','id_dosen'
+        'id_kelas', 'id_mata_kuliah', 'id_dosen', 'status_dosen'
     ];
 
     public function kelas()
     {
-        return $this->belongsTo(Kelas::class,'id_kelas','id');
+        return $this->belongsTo(Kelas::class, 'id_kelas', 'id');
     }
 
     public function mataKuliah()

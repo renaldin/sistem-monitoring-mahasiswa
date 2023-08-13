@@ -23,22 +23,21 @@ class MataKuliahController extends Controller
     {
         if (auth()->user()->role->role_name == 'admin jurusan') {
             $mata_kuliah = MataKuliah::where('id_prodi', auth()->user()->id_prodi)
-            ->get();
+                ->get();
             return view('mata-kuliah.index', compact('mata_kuliah'));
         } else {
             $mata_kuliah = MataKuliahEnroll::where('id_dosen', auth()->user()->id)
-            // ->whereHas('mataKuliah',function($query){
-            //     $query->where('status','aktif');
-            // })
-            ->get();
+                // ->whereHas('mataKuliah',function($query){
+                //     $query->where('status','aktif');
+                // })
+                ->get();
             $tahun_ajaran = TahunAjaran::select('tahun')->distinct()->get();
-           
+
             $angkatan = DB::table('kelas')->select('angkatan')->distinct()->get();
             $tahun = null;
             $semester = null;
-            return view('mata-kuliah.index2', compact('mata_kuliah','tahun_ajaran','tahun','semester','angkatan'));
+            return view('mata-kuliah.index2', compact('mata_kuliah', 'tahun_ajaran', 'tahun', 'semester', 'angkatan'));
         }
-
     }
 
     /**
@@ -48,7 +47,7 @@ class MataKuliahController extends Controller
      */
     public function create()
     {
-        $prodi = ProgramStudi::where('id_jurusan',Auth::user()->prodi->id_jurusan)->get();
+        $prodi = ProgramStudi::where('id_jurusan', Auth::user()->prodi->id_jurusan)->get();
 
         return view('mata-kuliah.manage', compact('prodi'));
     }
@@ -70,11 +69,11 @@ class MataKuliahController extends Controller
                 'status' => ['required'],
                 'semester' => ['required'],
             ]);
-    
+
             $data = $request->except('_token');
-    
+
             MataKuliah::create($data);
-    
+
             Session::flash('swal', [
                 'title' => 'Add Data',
                 'text' => 'Success',
@@ -82,7 +81,7 @@ class MataKuliahController extends Controller
                 'timer' => 1500,
                 'showConfirmButton' => false,
             ]);
-    
+
             return redirect('/mata-kuliah');
         } catch (\Throwable $th) {
             Session::flash('swal', [
@@ -107,8 +106,8 @@ class MataKuliahController extends Controller
         $mata_kuliah = MataKuliah::findorFail($id);
         if (Auth::user()->role->role_name == 'dosen') {
             $mata_kuliah_enroll = MataKuliahEnroll::where('id_mata_kuliah', $id)
-            ->where('id_dosen', Auth::user()->id)
-            ->get();
+                ->where('id_dosen', Auth::user()->id)
+                ->get();
         } else {
             $mata_kuliah_enroll = MataKuliahEnroll::where('id_mata_kuliah', $id)->get();
         }
@@ -129,7 +128,7 @@ class MataKuliahController extends Controller
      */
     public function edit($id)
     {
-        $prodi = ProgramStudi::where('id_jurusan',Auth::user()->prodi->id_jurusan)->get();
+        $prodi = ProgramStudi::where('id_jurusan', Auth::user()->prodi->id_jurusan)->get();
         $mata_kuliah = MataKuliah::findorFail($id);
 
         $data = array(
@@ -158,9 +157,9 @@ class MataKuliahController extends Controller
                 'status' => ['required'],
                 'semester' => ['required'],
             ]);
-    
+
             $data = $request->except('_token');
-    
+
             $mata_kuliah = MataKuliah::findorFail($id);
             $mata_kuliah->update($data);
             Session::flash('swal', [
@@ -170,7 +169,7 @@ class MataKuliahController extends Controller
                 'timer' => 1500,
                 'showConfirmButton' => false,
             ]);
-    
+
             return redirect('/mata-kuliah');
         } catch (\Throwable $th) {
             //throw $th;
@@ -184,7 +183,6 @@ class MataKuliahController extends Controller
 
             return redirect()->back();
         }
-        
     }
 
     /**
@@ -205,7 +203,7 @@ class MataKuliahController extends Controller
             ]);
             $mata_kuliah = MataKuliah::findorFail($id);
 
-            $mata_kuliah->delete();    
+            $mata_kuliah->delete();
         } catch (\Throwable $th) {
             Session::flash('swal', [
                 'title' => 'Delete Data',
@@ -220,33 +218,27 @@ class MataKuliahController extends Controller
 
     public function filter(Request $request)
     {
-      
+
         $kelas = Kelas::select('angkatan')->distinct()->get();
         $tahun_ajaran = TahunAjaran::select('tahun')->distinct()->get();
         // if($request->tahun<>null AND $request->semester <> null AND $request->angkatan <> null ){
-            $mata_kuliah = MataKuliahEnroll::with(['mataKuliah', 'kelas.tahunAjaran'])
+        $mata_kuliah = MataKuliahEnroll::with(['mataKuliah', 'kelas.tahunAjaran'])
             ->where('id_dosen', auth()->user()->id)
-            ->when($request, function($queri, $request) {
+            ->when($request, function ($queri, $request) {
                 if ($request->tahun <> null) {
-                    $queri ->whereHas('kelas.tahunAjaran', function ($query) use ($request) {
-                            $query->where('tahun', $request->tahun);
-                                  
-                        });
-                   
+                    $queri->whereHas('kelas.tahunAjaran', function ($query) use ($request) {
+                        $query->where('tahun', $request->tahun);
+                    });
                 }
                 if ($request->semester <> null) {
-                    $queri ->whereHas('kelas.tahunAjaran', function ($query) use ($request) {
-                            $query->where('semester', $request->semester);
-                                  
-                        });
-                   
+                    $queri->whereHas('kelas.tahunAjaran', function ($query) use ($request) {
+                        $query->where('semester', $request->semester);
+                    });
                 }
                 if ($request->angkatan <> null) {
-                    $queri ->whereHas('kelas', function ($query) use ($request) {
-                            $query->where('angkatan', $request->angkatan);
-                                  
-                        });
-                   
+                    $queri->whereHas('kelas', function ($query) use ($request) {
+                        $query->where('angkatan', $request->angkatan);
+                    });
                 }
             })->get();
 
@@ -256,6 +248,6 @@ class MataKuliahController extends Controller
         $angkatan = DB::table('kelas')->select('angkatan')->distinct()->get();
 
 
-       return view('mata-kuliah.index2', compact('mata_kuliah','tahun_ajaran','tahun','semester','angkatan','angkatanfilter'));
+        return view('mata-kuliah.index2', compact('mata_kuliah', 'tahun_ajaran', 'tahun', 'semester', 'angkatan', 'angkatanfilter'));
     }
 }

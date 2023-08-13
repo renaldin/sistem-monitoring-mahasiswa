@@ -18,7 +18,7 @@ class KelasEnrollController extends Controller
     public function index()
     {
         $kelas_enroll = KelasEnroll::where('id_mahasiswa', auth()->user()->id)
-        ->get();
+            ->get();
 
         return view('kelas-enroll.index', compact('kelas_enroll'));
     }
@@ -35,9 +35,9 @@ class KelasEnrollController extends Controller
         $kelas_enroll = KelasEnroll::pluck('id_mahasiswa')->all();
 
         $list_mahasiswa = User::where('id_prodi', $kelas->id_prodi)
-        ->where('id_role', '4')
-        ->whereNotIn('id', $kelas_enroll)
-        ->get();
+            ->where('id_role', '4')
+            ->whereNotIn('id', $kelas_enroll)
+            ->get();
 
         $data = array(
             'kelas' => $kelas,
@@ -55,7 +55,7 @@ class KelasEnrollController extends Controller
      */
     public function store(Request $request, $id)
     {
-        $this->validate($request,[
+        $this->validate($request, [
             'id_mahasiswa' => ['required']
         ]);
 
@@ -78,7 +78,6 @@ class KelasEnrollController extends Controller
      */
     public function show($id)
     {
-
     }
 
     /**
@@ -128,16 +127,20 @@ class KelasEnrollController extends Controller
         $data = $request->except('_token');
 
         $kelas_enroll_exists = KelasEnroll::with('kelas')
-        ->where('id_mahasiswa', Auth::user()->id)
-        ->whereHas('kelas', function($query) use ($data) {
-            $query->where('kode_kelas', $data['kode_kelas']);
-        })->exists();
+            ->where('id_mahasiswa', Auth::user()->id)
+            ->whereHas('kelas', function ($query) use ($data) {
+                $query->where('kode_kelas', $data['kode_kelas']);
+            })->exists();
 
         if ($kelas_enroll_exists) {
             return redirect()->back()->with('error', 'Kelas sudah diambil');
         } else {
             $kelas = Kelas::where('kode_kelas', $data['kode_kelas'])
-            ->first();
+                ->first();
+
+            if ($kelas === null) {
+                return redirect()->back()->with('error', 'Kelas tidak ada. Cek kembali kodenya!');
+            }
 
             $data_enroll = array(
                 'id_mahasiswa' => Auth::user()->id,
@@ -148,7 +151,5 @@ class KelasEnrollController extends Controller
 
             return redirect()->route('mahasiswa-kelas.index');
         }
-
-
     }
 }

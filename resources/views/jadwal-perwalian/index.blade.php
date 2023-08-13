@@ -7,7 +7,21 @@
 @section('content')
 <div class="row">
     <div class="col-12">
-
+      @if ($perwalian === null && $array === null)
+        <div class="card mb-4">
+            <div class="card-header d-flex pb-0">
+              <h6>Perwalian table</h6>
+              @if(auth()->user()->role->role_name == 'dosen')
+              <a href="{{ route('jadwal-perwalian.create') }}" class="d-relative ms-auto btn btn-outline-primary btn-sm">Tambah</a>
+              @endif
+            </div>
+            <div class="card-body ">
+              <div class="table-responsive text-center">
+                <p>Anda belum punya kelas. Silahkan masuk kelas dengan input kode kelas yang diberikan oleh Admin Jurusan!</p>
+              </div>
+            </div>
+        </div>
+      @else
         <div class="card mb-4">
             <div class="card-header d-flex pb-0">
               <h6>Perwalian table</h6>
@@ -41,7 +55,11 @@
                             <a href="#" class="delete-btn" data-url="{{ route('jadwal-perwalian.delete', ['jadwal_perwalian' => $item->id]) }}"><i class='bx bx-sm bx-trash text-danger'></i></a>
                             @else
                               @if($array[$key] == 0)
-                              <a href="{{ route('perwalian.create', ['jadwal_perwalian' => $item->id]) }}" class="btn btn-primary btn-sm">Buat Keluhan</a>
+                                @if ($item->tanggal == date('Y-m-d'))
+                                  <a href="{{ route('perwalian.create', ['jadwal_perwalian' => $item->id]) }}" class="btn btn-primary btn-sm">Buat Keluhan</a>
+                                @else
+                                  <a href="#" style="cursor: default;">Belum Waktunya</a>
+                                @endif
                               @else
                               <a href="{{ route('perwalian.show', ['jadwal_perwalian' => $item->id]) }}" class="btn btn-info btn-sm">Lihat Keluhan</a>
                               @endif
@@ -53,7 +71,8 @@
                 </table>
               </div>
             </div>
-          </div>
+        </div>
+      @endif
     </div>
 </div>
 @endsection

@@ -82,6 +82,18 @@
                                 </select>
                             </div>
                         </div>
+                        @if (!empty($data))
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="" class="form-control-label">Status</label>
+                                <select name="status" id="" class="form-control" required>
+                                    <option value="{{ $data->status }}">{{$data->status}}</option>
+                                    <option value="aktif">aktif</option>
+                                    <option value="tidak aktif">tidak aktif</option>
+                                </select>
+                            </div>
+                        </div>
+                        @endif
                         <button type="submit" class="btn btn-outline-primary w-100 d-block btn-md">Submit</button>
                     </form>
                 </div>

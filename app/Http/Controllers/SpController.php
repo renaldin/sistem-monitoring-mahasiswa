@@ -21,8 +21,8 @@ class SpController extends Controller
     public function index()
     {
         if (Auth::guard('orang_tua')->user()) {
-            $sp = Sp::where('id_user_penerima',Auth::guard('orang_tua')->user()->id_mahasiswa)
-            ->get();
+            $sp = Sp::where('id_user_penerima', Auth::guard('orang_tua')->user()->id_mahasiswa)
+                ->get();
         } else {
             if (auth()->user()->id_role == '2') {
                 $rekomen = Kehadiran::all();
@@ -34,7 +34,7 @@ class SpController extends Controller
                     $mahasiswaName = $attendanceRecords->first()->mahasiswa->name;
                     $mahasiswaId = $attendanceRecords->first()->mahasiswa->id;
 
-                    if($sumTerlambat >= 120 && $sumTerlambat <= 240) {
+                    if ($sumTerlambat >= 120 && $sumTerlambat <= 240) {
                         $rekomensp = 'Surat Peringatan Lisan 1';
                     } elseif ($sumTerlambat >= 240 && $sumTerlambat <= 360) {
                         $rekomensp = 'Surat Peringatan Lisan 2';
@@ -49,7 +49,7 @@ class SpController extends Controller
                     } else {
                         $rekomensp = 'Surat Peringatan Terakhir 3';
                     }
-                
+
                     $rekomendasi[] = [
                         'mahasiswa_id' => $mahasiswaId,
                         'mahasiswa' => $mahasiswaName,
@@ -58,16 +58,16 @@ class SpController extends Controller
                         'is_done' => count(Sp::where(['id_user_penerima' => $mahasiswaId, 'jenis_sp' => $rekomensp])->get())
                     ];
                 }
-                
+
                 $sp = Sp::all();
-                return view('sp.index', compact('sp','rekomendasi'));
+                return view('sp.index', compact('sp', 'rekomendasi'));
             } else if (auth()->user()->id_role == '3') {
-                $sp = Sp::join('kelas','sp.id_kelas','=','kelas.id')
-                ->where('kelas.id_dosen_wali', auth()->user()->id)
-                ->get();
+                $sp = Sp::join('kelas', 'sp.id_kelas', '=', 'kelas.id')
+                    ->where('kelas.id_dosen_wali', auth()->user()->id)
+                    ->get();
             } else {
                 $sp = Sp::where('id_user_penerima', auth()->user()->id)
-                ->get();
+                    ->get();
             }
         }
 
@@ -78,7 +78,7 @@ class SpController extends Controller
     public function create()
     {
         $kelas = Kelas::where('id_prodi', auth()->user()->id_prodi)
-        ->get();
+            ->get();
 
 
         $data = array(
@@ -91,8 +91,8 @@ class SpController extends Controller
     public function getMahasiswa($id_kelas)
     {
         $mahasiswa = KelasEnroll::where('id_kelas', $id_kelas)
-        ->join('users','kelas_enrolls.id_mahasiswa','=', 'users.id')
-        ->get();
+            ->join('users', 'kelas_enrolls.id_mahasiswa', '=', 'users.id')
+            ->get();
 
         return response()->json(['data' => $mahasiswa]);
     }
@@ -101,28 +101,28 @@ class SpController extends Controller
     public function store(Request $request)
     {
         try {
-            
-            $this->validate($request,[
+
+            $this->validate($request, [
                 'id_user_penerima' => ['required'],
                 'deskripsi' => ['required'],
-                'file' => ['required','file'],
+                'file' => ['required', 'file'],
             ]);
-    
+
             $data = $request->except('_token');
             $file = $request->file('file');
-    
-            $file_name = time(). "_" . $file->getClientOriginalName();
+
+            $file_name = time() . "_" . $file->getClientOriginalName();
             $file->storeAs('public/sp', $file_name);
 
             $kelas = KelasEnroll::where('id_mahasiswa', $data['id_user_penerima'])
-                    ->orderBy('id','desc')
-                    ->first();
+                ->orderBy('id', 'desc')
+                ->first();
 
             $terlambat = DB::table('kehadirans')
-                    ->where('kehadirans.id_mahasiswa', '=', $data['id_user_penerima'])
-                    ->sum('kehadirans.terlambat');
+                ->where('kehadirans.id_mahasiswa', '=', $data['id_user_penerima'])
+                ->sum('kehadirans.terlambat');
 
-            if($terlambat >= 120 && $terlambat <= 240) {
+            if ($terlambat >= 120 && $terlambat <= 240) {
                 $rekomensp = 'Surat Peringatan Lisan 1';
             } elseif ($terlambat >= 240 && $terlambat <= 360) {
                 $rekomensp = 'Surat Peringatan Lisan 2';
@@ -143,7 +143,7 @@ class SpController extends Controller
             $data['file'] = $file_name;
             $data['user_id'] = Auth::user()->id;
             Sp::create($data);
-            
+
             Session::flash('swal', [
                 'title' => 'Add Data',
                 'text' => 'success',
@@ -152,7 +152,7 @@ class SpController extends Controller
                 'showConfirmButton' => false,
             ]);
             // For send to dosen wali and orang tua
-    
+
             return redirect('/sp');
         } catch (\Throwable $th) {
             //throw $th;
@@ -186,27 +186,27 @@ class SpController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $this->validate($request,[
+            $this->validate($request, [
                 'id_user_penerima' => ['required'],
                 'deskripsi' => ['required'],
                 // 'file' => ['required','file'],
             ]);
-    
+
             $data = $request->except('_token');
             $file = $request->file('file');
             $sp = Sp::findorFail($id);
-    
+
             if (!empty($file)) {
-                $old_path = 'public/sp/'.$sp->file;
+                $old_path = 'public/sp/' . $sp->file;
                 Storage::delete($old_path);
-                $file_name = time(). "_" . $file->getClientOriginalName();
+                $file_name = time() . "_" . $file->getClientOriginalName();
                 $file->storeAs('public/sp', $file_name);
                 $data['file'] = $file_name;
             }
             $data['user_id'] = Auth::user()->id;
-    
+
             $sp->update($data);
-    
+
             Session::flash('swal', [
                 'title' => 'Update Data',
                 'text' => 'success',
@@ -227,7 +227,6 @@ class SpController extends Controller
             ]);
             return redirect()->back();
         }
-
     }
 
 
@@ -244,9 +243,9 @@ class SpController extends Controller
                 'showConfirmButton' => false,
             ]);
             $sp->delete();
-            $path = 'public/sp/'.$sp->file;
+            $path = 'public/sp/' . $sp->file;
             Storage::delete($path);
-    
+
             return redirect('/sp');
         } catch (\Throwable $th) {
             Session::flash('swal', [
@@ -258,22 +257,21 @@ class SpController extends Controller
             ]);
             return redirect()->back();
         }
-
     }
 
     public function checkTerlambat($id)
     {
         $data['terlambat'] = DB::table('kehadirans')
-                    ->selectRaw("kehadirans.*, users.name as mahasiswa, jadwals.hari, mata_kuliah_enrolls.id_mata_kuliah, mata_kuliahs.nama_mata_kuliah")
-                    ->join('users', 'kehadirans.id_mahasiswa', '=', 'users.id')
-                    ->join('jadwals', 'kehadirans.id_jadwal', '=', 'jadwals.id')
-                    ->join('mata_kuliah_enrolls', 'jadwals.id_mata_kuliah_enroll', '=', 'mata_kuliah_enrolls.id')
-                    ->join('mata_kuliahs', 'mata_kuliah_enrolls.id_mata_kuliah', '=', 'mata_kuliahs.id')
-                    ->where('kehadirans.id_mahasiswa', $id)
-                    ->where('kehadirans.terlambat', '>', 0)
-                    ->get();
+            ->selectRaw("kehadirans.*, users.name as mahasiswa, jadwals.hari, mata_kuliah_enrolls.id_mata_kuliah, mata_kuliahs.nama_mata_kuliah")
+            ->join('users', 'kehadirans.id_mahasiswa', '=', 'users.id')
+            ->join('jadwals', 'kehadirans.id_jadwal', '=', 'jadwals.id')
+            ->join('mata_kuliah_enrolls', 'jadwals.id_mata_kuliah_enroll', '=', 'mata_kuliah_enrolls.id')
+            ->join('mata_kuliahs', 'mata_kuliah_enrolls.id_mata_kuliah', '=', 'mata_kuliahs.id')
+            ->where('kehadirans.id_mahasiswa', $id)
+            ->where('kehadirans.terlambat', '>', 0)
+            ->get();
 
-                    return view('sp.terlambat-detail', $data);
+        return view('sp.terlambat-detail', $data);
     }
 
     public function kirimPeringatan($id)
@@ -286,7 +284,7 @@ class SpController extends Controller
 
         return view('sp.manage', $data);
     }
-    
+
 
     public function kirim()
     {
@@ -325,7 +323,7 @@ class SpController extends Controller
         $twilioNumber = "+14155238886";
         $recipientNumber = "+6283195739340";
         $client = new Client($sid, $token);
-    
+
         $message = $client->messages->create(
             'whatsapp:' . $recipientNumber, // Replace with the recipient's WhatsApp number
             [
@@ -333,9 +331,5 @@ class SpController extends Controller
                 'body' => "Anda telah menerima Surat Peringatan, silahkan cek surat di sistem Akademik Polsub",
             ]
         );
-
-    
-
-
     }
 }

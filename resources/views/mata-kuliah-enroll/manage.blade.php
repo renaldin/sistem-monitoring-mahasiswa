@@ -25,7 +25,9 @@
                                 <label for="" class="form-control-label">Kelas</label>
                                 <select name="id_kelas" id="" class="form-control">
                                     @foreach ($kelas as $item)
-                                    <option value="{{ $item->id }}" {{ old('id_kelas', @$item->id == @$data->id_kelas ? 'selected' : '')}}>{{ $item->kode_kelas }} {{$item->tahunAjaran->semester}}</option>
+                                        @if ($item->status === 'aktif')
+                                            <option value="{{ $item->id }}" {{ old('id_kelas', @$item->id == @$data->id_kelas ? 'selected' : '')}}>{{ $item->nama_kelas }}, Semester {{$item->tahunAjaran->semester}}</option>   
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>
@@ -38,6 +40,20 @@
                                     @foreach ($dosen as $item)
                                     <option value="{{ $item->id }}" {{ old('id_dosen', @$item->id == @$data->id_dosen ? 'selected' : '')}}>{{ $item->name }}</option>
                                     @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="" class="form-control-label">Status</label>
+                                <select name="status_dosen" id="" class="form-control">
+                                    @if (!empty($data))
+                                        <option value="{{$data->status_dosen}}">{{$data->status_dosen}}</option>
+                                    @else
+                                        <option value="">--Pilih Status--</option>   
+                                    @endif
+                                    <option value="aktif">aktif</option>
+                                    <option value="tidak aktif">tidak aktif</option>
                                 </select>
                             </div>
                         </div>

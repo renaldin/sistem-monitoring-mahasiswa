@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\JadwalPerwalian;
+use App\Models\Kelas;
 use App\Models\KelasEnroll;
 use App\Models\Perwalian;
 
@@ -17,40 +18,48 @@ class JadwalPerwalianController extends Controller
     {
         if (auth()->user()->role->role_name == 'dosen') {
             $perwalian = DB::table('jadwal_perwalian')
-                        ->selectRaw("jadwal_perwalian.*, kelas.nama_kelas")
-                        ->join('kelas', 'jadwal_perwalian.id_kelas', '=', 'kelas.id')
-                        ->where('jadwal_perwalian.id_dosen_wali', auth()->user()->id)
-                        ->get();
+                ->selectRaw("jadwal_perwalian.*, kelas.nama_kelas")
+                ->join('kelas', 'jadwal_perwalian.id_kelas', '=', 'kelas.id')
+                ->where('jadwal_perwalian.id_dosen_wali', auth()->user()->id)
+                ->get();
 
             return view('jadwal-perwalian.index', compact('perwalian'));
         } elseif (auth()->user()->role->role_name == 'mahasiswa') {
-            $kelas = KelasEnroll::where('id_mahasiswa', auth()->user()->id)->orderBy('id', 'desc')->first();
-            $perwalian = DB::table('jadwal_perwalian')
-                        ->selectRaw("jadwal_perwalian.*, kelas.nama_kelas")
-                        ->join('kelas', 'jadwal_perwalian.id_kelas', '=', 'kelas.id')
-                        ->where('jadwal_perwalian.id_kelas', $kelas->id_kelas)
-                        ->get();
+            $kelas = KelasEnroll::with('kelas')->where('id_mahasiswa', auth()->user()->id)->orderBy('id', 'desc')->first();
+            // $perwalian = DB::table('jadwal_perwalian')
+            //     ->selectRaw("jadwal_perwalian.*, kelas.nama_kelas")
+            //     ->join('kelas', 'jadwal_perwalian.id_kelas', '=', 'kelas.id')
+            //     ->where('jadwal_perwalian.id_kelas', $kelas->id_kelas)
+            //     ->get();
+            if ($kelas !== null) {
+                $perwalian = DB::table('jadwal_perwalian')
+                    ->selectRaw("jadwal_perwalian.*, kelas.nama_kelas")
+                    ->join('kelas', 'jadwal_perwalian.id_kelas', '=', 'kelas.id')
+                    ->where('jadwal_perwalian.id_dosen_wali', $kelas->kelas->id_dosen_wali)
+                    ->get();
 
-            $array = [];
-            foreach($perwalian as $row) {
-                $array[] = count(Perwalian::where(['id_mahasiswa' => auth()->user()->id, 'id_jadwal_perwalian' => $row->id])->get());
+                $array = [];
+                foreach ($perwalian as $row) {
+                    $array[] = count(Perwalian::where(['id_mahasiswa' => auth()->user()->id, 'id_jadwal_perwalian' => $row->id])->get());
+                }
+            } else {
+                $perwalian = null;
+                $array = null;
             }
 
-            
             return view('jadwal-perwalian.index', compact('perwalian', 'array'));
         }
-  
-
     }
 
 
     public function create()
     {
         $data['kelas'] = DB::table('kelas')
-                        ->selectRaw("kelas.*")
-                        ->where('kelas.id_dosen_wali', auth()->user()->id)
-                        ->where('kelas.status', 'aktif')
-                        ->first();
+            ->select("kelas.*", "tahun_ajarans.semester")
+            ->join('tahun_ajarans', 'tahun_ajarans.id', '=', 'kelas.id_tahun_ajaran')
+            ->where('kelas.id_dosen_wali', auth()->user()->id)
+            ->where('kelas.status', 'aktif')
+            ->first();
 
         return view('jadwal-perwalian.form-jadwal-perwalian', $data);
     }
@@ -58,6 +67,7 @@ class JadwalPerwalianController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
+            'id_kelas' => ['required'],
             'keterangan' => ['required'],
             'tanggal' => ['required']
         ]);
@@ -83,7 +93,7 @@ class JadwalPerwalianController extends Controller
     }
 
 
-    public function update(Request $request ,$id)
+    public function update(Request $request, $id)
     {
         // $this->validate($request, [
         //     'balasan' => ['required']
@@ -117,6 +127,4 @@ class JadwalPerwalianController extends Controller
 
         return redirect()->back();
     }
-    
-
 }

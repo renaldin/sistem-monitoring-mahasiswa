@@ -54,8 +54,8 @@ class UserController extends Controller
             //code...
             $this->validate($request, [
                 'name' => ['required'],
-                'email' => ['required','email','unique:users'],
-                'identity_number' => ['required','unique:users'],
+                'email' => ['required', 'email', 'unique:users'],
+                'identity_number' => ['required', 'unique:users'],
                 'id_role' => ['required'],
                 'password' => ['required'],
                 'address' => ['required'],
@@ -63,7 +63,7 @@ class UserController extends Controller
                 'gender' => ['required'],
                 'id_prodi' => ['required'],
             ]);
-    
+
             $data = array(
                 'name' => $request->name,
                 'email' => $request->email,
@@ -75,9 +75,9 @@ class UserController extends Controller
                 'gender' => $request->gender,
                 'id_prodi' => $request->id_prodi,
             );
-    
+
             User::create($data);
-    
+
             Session::flash('swal', [
                 'title' => 'Add Data',
                 'text' => 'success',
@@ -145,7 +145,7 @@ class UserController extends Controller
         try {
             $this->validate($request, [
                 'name' => ['required'],
-                'email' => ['required','email'],
+                'email' => ['required', 'email'],
                 'identity_number' => ['required'],
                 'id_role' => ['required'],
                 // 'password' => ['required'],
@@ -153,13 +153,14 @@ class UserController extends Controller
                 'phone_number' => ['required', 'numeric'],
                 'gender' => ['required'],
                 'id_prodi' => ['required'],
+                'status' => ['required'],
             ]);
-    
+
             $data = $request->except('_token');
-    
+
             $user = User::findorFail($id);
             $user->update($data);
-    
+
             Session::flash('swal', [
                 'title' => 'Update Data',
                 'text' => 'success',
@@ -223,7 +224,7 @@ class UserController extends Controller
             # code...
             $user = User::findorFail(auth()->user()->id);
             $ortu = OrangTua::where('id_mahasiswa', $user->id)
-            ->first();
+                ->first();
 
             $data = array(
                 'user' => $user,
@@ -247,7 +248,7 @@ class UserController extends Controller
             if (Auth::guard('web')->user()) {
                 $this->validate($request, [
                     'name' => ['required'],
-                    'email' => ['required','email'],
+                    'email' => ['required', 'email'],
                     // 'identity_number' => ['required'],
                     // 'id_role' => ['required'],
                     // 'password' => ['required'],
@@ -258,7 +259,7 @@ class UserController extends Controller
             } else {
                 $this->validate($request, [
                     'name_ortu' => ['required'],
-                    'email_ortu' => ['required','email'],
+                    'email_ortu' => ['required', 'email'],
                     // 'identity_number' => ['required'],
                     // 'id_role' => ['required'],
                     // 'password' => ['required'],
@@ -267,30 +268,30 @@ class UserController extends Controller
                     'gender_ortu' => ['required'],
                 ]);
             }
-    
+
             $data = $request->except('_token');
-    
+
             $mahasiswa = User::findorFail($id);
             $orang_tua = OrangTua::where('id_mahasiswa', $mahasiswa->id)
-            ->first();
-    
+                ->first();
+
             if (Auth::guard('web')->user()) {
                 $mahasiswa->name = $data['name'];
                 $mahasiswa->email = $data['email'];
                 $mahasiswa->address = $data['address'];
                 $mahasiswa->phone_number = $data['phone_number'];
                 $mahasiswa->gender = $data['gender'];
-    
+
                 if (!empty($data['password'])) {
-                    if($data['password'] == $mahasiswa->identity_number) {
+                    if ($data['password'] == $mahasiswa->identity_number) {
                         return redirect()->route('profile')->with('error', 'Password tidak boleh nim');
                     } else {
                         $mahasiswa->password = bcrypt($data['password']);
                     }
                 }
                 $mahasiswa->update();
-    
-    
+
+
                 if ($orang_tua) {
                     $orang_tua->name = $data['name_ortu'];
                     $orang_tua->email = $data['email_ortu'];
@@ -304,7 +305,7 @@ class UserController extends Controller
                             'id_mahasiswa' => $mahasiswa->id,
                             'name' => $data['name_ortu'],
                             'email' => $data['email_ortu'],
-                            'nim_mahasiswa' => 'P'.$mahasiswa->identity_number,
+                            'nim_mahasiswa' => 'P' . $mahasiswa->identity_number,
                             'password' => bcrypt($mahasiswa->identity_number),
                             'address' => $data['address_ortu'],
                             'phone_number' => $data['phone_number_ortu'],
@@ -320,11 +321,11 @@ class UserController extends Controller
                 $orang_tua->address = $data['address_ortu'];
                 $orang_tua->phone_number = $data['phone_number_ortu'];
                 $orang_tua->gender = $data['gender_ortu'];
-    
+
                 if (!empty($data['password_ortu'])) {
                     $orang_tua->password = bcrypt($data['password_ortu']);
                 }
-    
+
                 $orang_tua->update();
             }
 
@@ -335,7 +336,7 @@ class UserController extends Controller
                 'timer' => 1500,
                 'showConfirmButton' => false,
             ]);
-    
+
             return redirect()->route('profile');
         } catch (\Throwable $th) {
             //throw $th;

@@ -21,6 +21,7 @@
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Email</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nomor Identitas</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Role</th>
+                      <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                       <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                     </tr>
                   </thead>
@@ -31,6 +32,7 @@
                         <td>{{ $item->email }}</td>
                         <td>{{ $item->identity_number }}</td>
                         <td>{{ $item->role->role_name }}</td>
+                        <td>{{ $item->status }}</td>
                         <td>
                             <a href="{{ route('user.edit', ['user' => $item->id]) }}"><i class='bx bx-sm text-info bx-edit'></i></a>
                             {{-- <a href="{{ route('user.delete', ['user' => $item->id]) }}"><i class='bx bx-sm bx-trash text-danger'></i></a> --}}

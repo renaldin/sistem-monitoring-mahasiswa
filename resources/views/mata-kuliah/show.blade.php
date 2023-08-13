@@ -53,6 +53,7 @@
                           <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kelas</th>
                           <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kode Kelas</th>
                           <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Dosen</th>
+                          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
                           <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Action</th>
                         </tr>
                       </thead>
@@ -63,6 +64,7 @@
                             <td>{{ $item->kelas->nama_kelas }}</td>
                             <td>{{ $item->kelas->kode_kelas }}</td>
                             <td>{{ $item->dosen->name }}</td>
+                            <td>{{ $item->status_dosen }}</td>
                             <td>
                                 <a href="{{ route('rekap.detail', ['id_kelas' => $item->kelas->id, 'id_mata_kuliah_enroll' => $item->id]) }}"><i class='bx bx-sm text-info bx-detail'></i></a>
                                 @if (Auth::user()->role->role_name == 'admin jurusan')

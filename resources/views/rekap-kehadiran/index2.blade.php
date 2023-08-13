@@ -88,9 +88,11 @@
             </div>
           </div>
         </div>
+        @if (Auth::user()->role->role_name !== 'admin jurusan')
         <div class="d-flex justify-content-end">
             <a href="{{ route('kehadiran.create', ['id_jadwal' => $jadwal->id]) }}" class="d-relative ms-auto btn btn-outline-primary btn-sm ml-auto">Tambah</a>
-          </div>
+        </div>
+        @endif
         @foreach ($kehadiran as $item)
         <div class="col-md-12 mb-5">
             <div class="card">

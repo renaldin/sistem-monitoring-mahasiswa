@@ -11,6 +11,13 @@
               </div>
               <div class="card-body">
                 <p class="text-uppercase text-sm">Kelas Information</p>
+                @if (session('error'))
+                <div class="row">
+                    <div class="alert alert-danger" style="color : #fff;" role="alert">
+                        <strong>Warning!</strong> {{session('error')}}
+                    </div>
+                </div>
+                @endif
                 <div class="row">
                     <form action="{{ route('mahasiswa.kelas.store') }}" method="POST">
                         @csrf
