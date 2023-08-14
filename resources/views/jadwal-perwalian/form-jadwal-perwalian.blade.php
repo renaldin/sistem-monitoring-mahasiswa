@@ -29,7 +29,7 @@
                             <div class="form-group">
                                 <label for="example-text-input" class="form-control-label">Kelas</label>
                                 <input type="hidden" name="id_kelas" value="{{ empty($data) ? $kelas->id : $data->id_kelas }}" readonly />
-                                <input class="form-control" required type="text" value="{{ empty($data) ? $kelas->nama_kelas.' Semester '. $kelas->semester: @$data->id_kelas }}" readonly />
+                                <input class="form-control" required type="text" value="{{ empty($data) ? $kelas->nama_kelas.' Semester '. $kelas->semester: @$data->nama_kelas.', Semester '.$data->semester }}" readonly />
                             </div>
                         </div>
                         <div class="col">

@@ -21,30 +21,28 @@ class PerwalianController extends Controller
     public function index()
     {
         if (auth()->user()->role->role_name == 'dosen') {
-            $perwalian = KelasEnroll::whereHas('kelas',function($query){
+            $perwalian = KelasEnroll::whereHas('kelas', function ($query) {
                 $query->where('id_dosen_wali', auth()->user()->id);
             })
-            ->get()
-            ->groupBy('mahasiswa.name');
+                ->get()
+                ->groupBy('mahasiswa.name');
             // dd($perwalian);
             return view('perwalian.index', compact('perwalian'));
         } elseif (auth()->user()->role->role_name == 'mahasiswa') {
             $perwalian = KelasEnroll::where('id_mahasiswa', auth()->user()->id)
-            ->get();
+                ->get();
             return view('perwalian.index2', compact('perwalian'));
         }
-  
-
     }
 
 
     public function listPerwalian($id)
     {
         $perwalian = DB::table('perwalians')
-                    ->selectRaw("perwalians.*, users.name")
-                    ->join('users', 'perwalians.id_mahasiswa', '=', 'users.id')
-                    ->where('perwalians.id_jadwal_perwalian', $id)
-                    ->get();
+            ->selectRaw("perwalians.*, users.name")
+            ->join('users', 'perwalians.id_mahasiswa', '=', 'users.id')
+            ->where('perwalians.id_jadwal_perwalian', $id)
+            ->get();
 
         return view('perwalian.list-perwalian', compact('perwalian'));
     }
@@ -75,7 +73,7 @@ class PerwalianController extends Controller
      */
     public function store(Request $request, $id)
     {
-        
+
         if (auth()->user()->role->role_name == 'dosen') {
             $this->validate($request, [
                 'keluhan' => ['required']
@@ -93,26 +91,28 @@ class PerwalianController extends Controller
 
         return redirect()->route('perwalian.show', $id);
     }
-    
+
     public function storeBalasan(Request $request, $id)
     {
 
         $data = $request->except('_token');
-    
+
+        $perwalian = JadwalPerwalian::findorFail($id);
+
         $jadwal = Perwalian::findorFail($id);
         $jadwal->balasan = $data['balasan'];
 
         $jadwal->update($data);
 
-        return redirect()->route('perwalian.list-perwalian', $id);
+        return redirect()->route('perwalian.list-perwalian', $jadwal->id_jadwal_perwalian);
     }
 
     public function show($id)
     {
 
         $perwalian = Perwalian::where('id_jadwal_perwalian', $id)
-                    ->where('id_mahasiswa', Auth::user()->id)
-                    ->get();
+            ->where('id_mahasiswa', Auth::user()->id)
+            ->get();
 
         $data = array(
             'perwalian' => $perwalian
@@ -144,7 +144,7 @@ class PerwalianController extends Controller
         return view('perwalian.form-balasan', $data);
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         // $this->validate($request, [
         //     'balasan' => ['required']
@@ -159,7 +159,7 @@ class PerwalianController extends Controller
         return redirect()->route('perwalian.show', $id);
     }
 
-    public function updateBalasan(Request $request,$id)
+    public function updateBalasan(Request $request, $id)
     {
         // $this->validate($request, [
         //     'balasan' => ['required']
@@ -171,20 +171,21 @@ class PerwalianController extends Controller
 
         $perwalian->update($data);
 
-        return redirect()->route('perwalian.list-perwalian', $id);
+        return redirect()->route('perwalian.list-perwalian', $perwalian->id_jadwal_perwalian);
     }
 
     public function destroy($id)
     {
         //
     }
-    
-    public function showNew($id_kelas,$id_mahasiswa){
-        $perwalian = Perwalian::where('id_mahasiswa',$id_mahasiswa)
-        ->get();
+
+    public function showNew($id_kelas, $id_mahasiswa)
+    {
+        $perwalian = Perwalian::where('id_mahasiswa', $id_mahasiswa)
+            ->get();
 
         $id_kelas = $id_kelas;
 
-        return view('perwalian.show',compact('perwalian','id_kelas'));
+        return view('perwalian.show', compact('perwalian', 'id_kelas'));
     }
 }

@@ -83,7 +83,13 @@ class JadwalPerwalianController extends Controller
 
     public function edit($id)
     {
-        $perwalian = JadwalPerwalian::findorFail($id);
+        // $perwalian = JadwalPerwalian::findorFail($id);
+        $perwalian = DB::table('jadwal_perwalian')
+            ->select('jadwal_perwalian.*', 'kelas.nama_kelas', 'tahun_ajarans.semester')
+            ->join('kelas', 'kelas.id', '=', 'jadwal_perwalian.id_kelas', 'left')
+            ->join('tahun_ajarans', 'tahun_ajarans.id', '=', 'kelas.id_tahun_ajaran', 'left')
+            ->where('jadwal_perwalian.id', $id)
+            ->first();
 
         $data = array(
             'data' => $perwalian
